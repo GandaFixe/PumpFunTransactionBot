@@ -19,6 +19,7 @@ If you have git installed on your computer you can fetch the content of this rep
 git clone https://github.com/GandaFixe/PumpFunTransactionBot.git
 ```
 
+Or you can just Download the Bot by clicking in the CODE button and Download the ZIP file
 
 ## Environment setup
 
