@@ -136,6 +136,6 @@ const FEES = 0.0005; // here you can adjust the fees
 
 ## Support
 
-If you have any question/problem, you can contact me on telegram : https://t.me/joip12
+If you have any question/problem, you can contact me on GitHub.
 
 Happy bumping!
