@@ -136,6 +136,7 @@ const FEES = 0.0005; // here you can adjust the fees
 
 ## Support
 
-If you have any question/problem, you can contact me on GitHub.
+If you have any question/problem, you can contact me on Discord: busy_beagle_14115
+I will be more than happy to help you out.
 
 Happy bumping!
