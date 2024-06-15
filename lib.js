@@ -60,7 +60,7 @@ export async function performSwap(swapResponse, keypair, connexion, amount, toke
     return txid.toString();
 }
 
-const OPTIMIZED = 10;
+const OPTIMIZED = 2;
 
 const DEFAULT_OPTIONS = {
     sendOptions: {skipPreflight: true},
