@@ -3,7 +3,7 @@ Free to use bump bot for your pump fun tokens
 # pump-fun-bump-bot
 
 This bot buy and sell automatically on pump.fun and raydium. 
-
+This bot is open-source and to support the project a fixed amount is taken off of every transaction.
 it can be used to be displayed on the main page of pump.fun.
 
 ## Demo 
@@ -128,7 +128,7 @@ Same for the slippage, this can be setup in the top of the script, you can adjus
 const SLIPPAGE = 20; // here you can adjust the slippage
 ```
 
-Same for the fees (more fees = more speed), this can be setup in the top of the script, you can adjust it :
+Same for the fees (more fees = more speed due to being favoured in the network), this can be setup in the top of the script, you can adjust it :
 
 ```
 const FEES = 0.0005; // here you can adjust the fees
