@@ -15,7 +15,7 @@ it can be used to be displayed on the main page of pump.fun.
 
 If you have git installed on your computer you can fetch the content of this repository with the command : 
 
-```
+```sh
 git clone https://github.com/GandaFixe/PumpFunTransactionBot.git
 ```
 
@@ -31,7 +31,7 @@ For MacOS : https://nodejs.org/dist/v22.2.0/node-v22.2.0.pkg
 
 For Linux, execute in a terminal : 
 
-```
+```sh
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
 nvm install 22
@@ -41,13 +41,13 @@ To check if nodejs is installed :
 
 - on Windows, open a cmd.exe, and run the command : 
 
-```
+```sh
 node -v
 ```
 
 - On MacOs & linux, open a terminal, and run the same command : 
 
-```
+```sh
 node -v
 ```
 
@@ -57,19 +57,19 @@ It should return the version of nodejs.
 
 In a cmd.exe or a terminal, go to the folder of the pump-fun-bump-bot with the command :
 
-```
+```sh
 cd /path/to/the/folder
 ```
 
 Then, in your cmd.exe / terminal, start the command :
 
-```
+```sh
 npm install
 ```
 
 It should install all the dependencies in a new folder named "node_modules".
 
-## Setup configuration in the index.js script
+## Setup configuration in the .env.example file
 
 You have three things to setup : 
 
@@ -79,18 +79,12 @@ You have three things to setup :
 
 - The contract address of the token you want to bump
 
-The variables are on the top of the script : 
-
-```
-const RPC_URL = ""; // Quicknode or Helius give good rpc urls
-const PRIVKEY = ""; // the private key of the account who will buy and sell
-const TOKEN_ADDR = ""; // Put the address of the token you want to bump here
-```
+After setting up your variables, just remove the ".example" part from the .env
 ## Run the bump bot
 
 To run the bump bot, in a cmd.exe or a terminal, start the command:
 
-```
+```sh
 node index.js
 ```
 
@@ -98,40 +92,34 @@ And it's all. The bot will buy 4 times, then sell all the balance.
 
 ## Adjustments
 
-If you want to buy more or less times before selling, it's at the bottom of the script, in the while loop : 
+If you want to buy more or less times before selling, You just need to change the .env `BUY_COUNT` param
 
-```
-// Buy
-promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
-promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
-promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
-promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
+```js
+BUY_COUNT=5
 ```
 
 If you want to buy only 2 times for example, you just have to remove 2 lines, like this : 
 
-```
-// Buy
-promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
-promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
+```js
+BUY_COUNT=2
 ```
 
 Also, for the buy amount in SOL, this can be setup in the top of the script, you can adjust it : 
 
-```
-const SOL_BUY_AMOUNT = 0.011; // here you can choose to increase/decrease the buy amount
-```
-
-Same for the slippage, this can be setup in the top of the script, you can adjust it :
-
-```
-const SLIPPAGE = 20; // here you can adjust the slippage
+```js
+SOL_BUY_AMOUNT = 0.011; // here you can choose to increase/decrease the buy amount
 ```
 
-Same for the fees (more fees = more speed due to being favoured in the network), this can be setup in the top of the script, you can adjust it :
+Same for the slippage, you can adjust it :
 
+```js
+SLIPPAGE = 20; // here you can adjust the slippage
 ```
-const FEES = 0.0005; // here you can adjust the fees
+
+Same for the fees (more fees = more speed due to being favoured in the network), you can adjust it:
+
+```js
+FEES = 0.0005; // here you can adjust the fees
 ```
 
 ## Support

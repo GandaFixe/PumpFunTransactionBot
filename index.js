@@ -1,19 +1,28 @@
-import {Connection, Keypair, PublicKey} from "@solana/web3.js";
-import {SolanaTracker} from "solana-swap";
-import {performSwap, SOL_ADDR} from "./lib.js";
-import base58 from "bs58";
+import 'dotenv/config';
 
-const RPC_URL = ""; // Quicknode or Helius give good rpc urls
-const PRIVKEY = ""; // the private key of the account who will buy and sell, in base58 (phantom export for example)
-const TOKEN_ADDR = ""; // Put the address of the token you want to bump here
+import base58 from 'bs58';
+import { SolanaTracker } from 'solana-swap';
 
-const SOL_BUY_AMOUNT = 0.011; // here you can choose to increase/decrease the buy amount
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+} from '@solana/web3.js';
 
-const FEES = 0.0005; // here you can adjust the fees
-const SLIPPAGE = 20; // here you can adjust the slippage
+import { performSwap } from './lib.js';
 
-async function swap(tokenIn, tokenOut, solanaTracker, keypair, connexion, amount) {
+const {
+    RPC_URL,
+    PRIVKEY,
+    TOKEN_ADDR,
+    SOL_BUY_AMOUNT,
+    FEES,
+    SLIPPAGE,
+    SOL_ADDR,
+    BUY_COUNT
+} = process.env;
 
+async function swap(tokenIn, tokenOut, solanaTracker, keypair, connection, amount) {
     try {
         const swapResponse = await solanaTracker.getSwapInstructions(
             tokenIn, // From Token
@@ -27,8 +36,8 @@ async function swap(tokenIn, tokenOut, solanaTracker, keypair, connexion, amount
 
         console.log("Send swap transaction...");
 
-        const tx = await performSwap(swapResponse, keypair, connexion, amount, tokenIn, {
-            sendOptions: {skipPreflight: true},
+        const tx = await performSwap(swapResponse, keypair, connection, amount, tokenIn, {
+            sendOptions: { skipPreflight: true },
             confirmationRetries: 30,
             confirmationRetryTimeout: 1000,
             lastValidBlockHeightBuffer: 150,
@@ -38,39 +47,33 @@ async function swap(tokenIn, tokenOut, solanaTracker, keypair, connexion, amount
         });
 
         console.log("Swap sent : " + tx);
-
     } catch (e) {
         console.log("Error when trying to swap")
     }
 }
 
 async function getTokenBalance(connection, owner, tokenAddr) {
-    const result = await connection.getTokenAccountsByOwner(owner, {mint: new PublicKey(tokenAddr)});
+    const result = await connection.getTokenAccountsByOwner(owner, { mint: new PublicKey(tokenAddr) });
     const info = await connection.getTokenAccountBalance(result.value[0].pubkey);
     if (info.value.uiAmount == null) throw new Error('No balance found');
     return info.value.uiAmount;
 }
 
 async function main() {
-
     const keypair = Keypair.fromSecretKey(base58.decode(PRIVKEY));
     const solanaTracker = new SolanaTracker(keypair, RPC_URL);
-    const connexion = new Connection(RPC_URL);
+    const connection = new Connection(RPC_URL);
 
     while (true) {
-
         // Buy
         const promises = [];
-        promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
-        promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
-        promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
-        promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connexion, SOL_BUY_AMOUNT));
-        await Promise.all(promises);
-
+        for (let i = 0; i < BUY_COUNT; i++) {
+            promises.push(swap(SOL_ADDR, TOKEN_ADDR, solanaTracker, keypair, connection, SOL_BUY_AMOUNT));
+        }
+       await Promise.all(promises);
         // Sell
-        const balance = Math.round(await getTokenBalance(connexion, keypair.publicKey, TOKEN_ADDR));
-        await swap(TOKEN_ADDR, SOL_ADDR, solanaTracker, keypair, connexion, balance);
-
+        const balance = Math.round(await getTokenBalance(connection, keypair.publicKey, TOKEN_ADDR));
+        await swap(TOKEN_ADDR, SOL_ADDR, solanaTracker, keypair, connection, balance);
         // Pause
         await new Promise(r => setTimeout(r, 2000)); // it's in milliseconds
     }
